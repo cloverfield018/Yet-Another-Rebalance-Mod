@@ -1,0 +1,13 @@
+{
+    "id": "YetAnotherRebalanceMod",
+    "name": "Yet Another Rebalance Mod",
+    "author": ["Cloverfield"],
+    "description": "A mod focused on rebalancing and reworking various vanilla features of Balatro.",
+    "prefix": "yarm",
+    "badge_color": "#26a4de",
+    "display_name": "YARM",
+    "main_file": "YetAnotherRebalanceMod.lua",
+    "version": "0.1.0",
+    "priority": 0,
+    "dependencies": ""
+}
