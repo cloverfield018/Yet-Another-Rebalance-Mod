@@ -1,4 +1,3 @@
-
 -- Register Jimbo's config toggle.
 YARM_CONFIG_TOGGLES = YARM_CONFIG_TOGGLES or {}
 

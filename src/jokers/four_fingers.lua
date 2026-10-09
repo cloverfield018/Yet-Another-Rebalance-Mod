@@ -240,15 +240,14 @@ if ff_config.rebalance then
     local function get_rank_group(card)
         local rank = card:get_id()
 
-        if rank == 14 then
-            return "odd" -- Ace
+        if card:is_face() then
+            return "face"
         elseif rank == 2 or rank == 4 or rank == 6
             or rank == 8 or rank == 10 then
             return "even"
-        elseif rank == 3 or rank == 5 or rank == 7 or rank == 9 then
+        elseif rank == 3 or rank == 5 or rank == 7 
+            or rank == 9 or rank == 14 then
             return "odd"
-        elseif rank == 11 or rank == 12 or rank == 13 then
-            return "face"
         end
 
         return nil

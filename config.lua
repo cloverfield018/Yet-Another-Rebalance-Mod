@@ -21,5 +21,11 @@ return {
             remove_flush = true,
             rank_restriction = true,
         },
+        mime = {
+            rebalance = true,
+        },
+        credit_card = {
+            rebalance = true,
+        },
     },
 }

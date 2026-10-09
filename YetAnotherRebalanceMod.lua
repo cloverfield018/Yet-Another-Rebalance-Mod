@@ -468,9 +468,12 @@ dofile(path .. "src/jokers/lusty_joker.lua")
 dofile(path .. "src/jokers/wrathful_joker.lua")
 dofile(path .. "src/jokers/gluttonous_joker.lua")
 dofile(path .. "src/jokers/four_fingers.lua")
-
+dofile(path .. "src/jokers/mime.lua")
+dofile(path .. "src/jokers/credit_card.lua")
 
 -- Other content
 
 dofile(path .. "src/tarots.lua")
 dofile(path .. "src/enhancements.lua")
+
+-- assert(SMODS.load_file("tests.lua"))()

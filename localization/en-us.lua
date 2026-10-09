@@ -93,6 +93,19 @@ return {
                     "rank group respectively",
                     "{C:inactive}(Odd, Even or Face){}"
                 }
+            },
+            -- Mime
+            j_yarm_mime = {
+            },
+            -- Credit Card
+            j_yarm_credit_card = {
+                text = {
+                    "Go up to {C:red}-$#1#{} in debt",
+                    "Vouchers are {C:attention}#2#%{} off",
+                    "Earn {C:money}$#3#{} per unused",
+                    "choice when any {C:attention}Booster{}",
+                    "{C:attention}Pack{} is skipped"
+                }
             }
         },
     }
