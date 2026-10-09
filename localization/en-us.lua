@@ -7,8 +7,9 @@ return {
                 name = "Jimbo",
                 text = {
                     "{C:mult}+#1#{} Mult",
-                    "This Joker gains {C:mult}+#2#{} Mult for every",
-                    "defeated Boss Blind this run",
+                    "This Joker gains {C:mult}+#2#{} Mult",
+                    "for every defeated",
+                    "Boss Blind this run",
                     "{C:inactive}(Currently {C:mult}+#3# {C:inactive}Mult){}"
                 }
             },
@@ -52,13 +53,45 @@ return {
                     "{C:inactive}(Currently {C:mult}+#3# {C:inactive}Mult){}"
                 }
             },
-            -- Four Fingers
-            j_yarm_four_fingers = {
+            -- Four Fingers: localization variants for each combination of config toggles.
+            j_yarm_four_fingers_00 = {
                 text = {
-                    "Every poker hand containing",
-                    "a {C:attention}Straight{} or {C:attention}Full House{} can",
-                    "be made with 4 consecutive",
-                    "cards or 2 pairs respectively"
+                    "All {C:attention}Flushes{} and {C:attention}Straights{}",
+                    "can be made with 4 cards",
+                    "Every poker hand",
+                    "containing a {C:attention}Full House{}",
+                    "can be made with 2 pairs"
+                }
+            },
+            j_yarm_four_fingers_01 = {
+                text = {
+                    "All {C:attention}Flushes{} and {C:attention}Straights{}",
+                    "can be made with 4 cards",
+                    "Every poker hand",
+                    "containing a {C:attention}Full House{}",
+                    "can be made with 2 pairs",
+                    "of the same rank group",
+                    "{C:inactive}(Odd, Even or Face){}"
+                }
+            },
+            j_yarm_four_fingers_10 = {
+                text = {
+                    "Every poker hand",
+                    "containing a {C:attention}Straight{} or",
+                    "{C:attention}Full House{} can be made",
+                    "with 4 consecutive cards",
+                    "or 2 pairs respectively"
+                }
+            },
+            j_yarm_four_fingers_11 = { -- Default
+                text = {
+                    "Every poker hand",
+                    "containing a {C:attention}Straight{} or",
+                    "{C:attention}Full House{} can be made",
+                    "with 4 consecutive cards",
+                    "or 2 pairs of the same",
+                    "rank group respectively",
+                    "{C:inactive}(Odd, Even or Face){}"
                 }
             }
         },
