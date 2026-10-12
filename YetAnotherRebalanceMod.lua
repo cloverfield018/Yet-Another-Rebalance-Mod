@@ -347,26 +347,6 @@ function mod.config_tab()
         table.insert(toggles, toggle)
     end
 
-    -- Placeholders para probar el layout.
-    table.insert(toggles, {
-        label = "Placeholder A",
-        placeholder = true,
-    })
-
-    table.insert(toggles, {
-        label = "Placeholder B",
-        placeholder = true,
-    })
-
-    table.insert(toggles, {
-        label = "Placeholder C",
-        placeholder = true,
-    })
-
-    table.insert(toggles, {
-        label = "Placeholder D",
-        placeholder = true,
-    })
 
     local toggle_rows = {}
 
@@ -462,18 +442,33 @@ dofile(path .. "functions/sinful.lua")
 
 -- Jokers
 
-dofile(path .. "src/jokers/jimbo.lua")
-dofile(path .. "src/jokers/greedy_joker.lua")
-dofile(path .. "src/jokers/lusty_joker.lua")
-dofile(path .. "src/jokers/wrathful_joker.lua")
-dofile(path .. "src/jokers/gluttonous_joker.lua")
-dofile(path .. "src/jokers/four_fingers.lua")
-dofile(path .. "src/jokers/mime.lua")
-dofile(path .. "src/jokers/credit_card.lua")
+dofile(path .. "src/jokers/1. jimbo.lua")
+dofile(path .. "src/jokers/2. greedy_joker.lua")
+dofile(path .. "src/jokers/3. lusty_joker.lua")
+dofile(path .. "src/jokers/4. wrathful_joker.lua")
+dofile(path .. "src/jokers/5. gluttonous_joker.lua")
+dofile(path .. "src/jokers/7. zany_joker.lua")
+dofile(path .. "src/jokers/8. mad_joker.lua")
+dofile(path .. "src/jokers/9. crazy_joker.lua")
+dofile(path .. "src/jokers/10. droll_joker.lua")
+dofile(path .. "src/jokers/12. wily_joker.lua")
+dofile(path .. "src/jokers/13. clever_joker.lua")
+dofile(path .. "src/jokers/14. devious_joker.lua")
+dofile(path .. "src/jokers/15. crafty_joker.lua")
+dofile(path .. "src/jokers/18. four_fingers.lua")
+dofile(path .. "src/jokers/19. mime.lua")
+dofile(path .. "src/jokers/20. credit_card.lua")
+dofile(path .. "src/jokers/21. ceremonial_dagger.lua")
+dofile(path .. "src/jokers/22. banner.lua")
+dofile(path .. "src/jokers/23. mystic_summit.lua")
+dofile(path .. "src/jokers/24. marble_joker.lua")
+
 
 -- Other content
 
 dofile(path .. "src/tarots.lua")
 dofile(path .. "src/enhancements.lua")
 
+
+-- Tests
 -- assert(SMODS.load_file("tests.lua"))()

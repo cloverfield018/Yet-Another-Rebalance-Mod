@@ -4,6 +4,30 @@ return {
         jimbo = {
             rebalance = true,
         },
+        zany_joker = {
+            rebalance = true,
+        },
+        mad_joker = {
+            rebalance = true,
+        },
+        crazy_joker = {
+            rebalance = true,
+        },
+        droll_joker = {
+            rebalance = true,
+        },
+        wily_joker = {
+            rebalance = true,
+        },
+        clever_joker = {
+            rebalance = true,
+        },
+        devious_joker = {
+            rebalance = true,
+        },
+        crafty_joker = {
+            rebalance = true,
+        },
         greedy_joker = {
             rebalance = true,
         },
@@ -25,6 +49,19 @@ return {
             rebalance = true,
         },
         credit_card = {
+            rebalance = true,
+        },
+        ceremonial = {
+            rebalance = true,
+            destroy_left = true,
+        },
+        banner = {
+            rebalance = true,
+        },
+        mystic_summit = {
+            rebalance = true,
+        },
+        marble = {
             rebalance = true,
         },
     },
