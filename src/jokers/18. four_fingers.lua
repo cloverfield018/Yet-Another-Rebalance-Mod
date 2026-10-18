@@ -14,7 +14,7 @@ table.insert(YARM_CONFIG_TOGGLES, {
             ref_value = "remove_flush",
         },
         {
-            label = "F. House Rank Restriction",
+            label = "F.H. Rank Restriction",
             ref_table = YARM_CONFIG.jokers.four_fingers,
             ref_value = "rank_restriction",
         },
@@ -362,5 +362,4 @@ if ff_config.rebalance then
             return {}
         end
     }, true)
-
 end

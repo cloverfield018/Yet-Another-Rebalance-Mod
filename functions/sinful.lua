@@ -27,9 +27,9 @@ function count_other_sinful_jokers(card)
 end
 
 function get_sinful_mult(card)
-    local base_mult = card.ability.extra.s_mult
-    local increase = card.ability.extra.increase
+    local base_mult = card.ability.extra.base_mult
+    local mult_increase = card.ability.extra.mult_increase
     local other_sinful = count_other_sinful_jokers(card)
 
-    return base_mult + (increase * other_sinful)
+    return base_mult + (mult_increase * other_sinful)
 end

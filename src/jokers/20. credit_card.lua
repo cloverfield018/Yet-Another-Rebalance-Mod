@@ -28,7 +28,6 @@ end
 -- Credit Card
 if YARM_CONFIG.jokers.credit_card.rebalance then
     SMODS.Joker:take_ownership("credit_card", {
-        cost = 2,
         blueprint_compat = true,
 
         config = {

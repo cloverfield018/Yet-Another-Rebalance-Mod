@@ -8,8 +8,7 @@ table.insert(YARM_CONFIG_TOGGLES, {
 })
 
 
--- Wraps the vanilla defeat function to track defeated Boss Blinds.
--- Track defeated Boss Blinds so Jimbo's Mult can scale throughout the run.
+-- Track defeated Boss Blinds throughout the run.
 local blind_defeat_ref = Blind.defeat
 
 function Blind:defeat(silent)
@@ -28,43 +27,68 @@ if YARM_CONFIG.jokers.jimbo.rebalance then
         name = "Jimbo",
 
         config = {
-            extra = 4,
-            increase = 2
+            extra = {
+                base_mult = 4,
+                mult_increase = 2,
+            }
         },
 
         loc_vars = function(self, info_queue, card)
-            local boss_blinds =
+            local boss_blinds_defeated =
                 G.GAME and G.GAME.yarm_boss_blinds_defeated or 0
 
-            local extra = card.ability.extra or self.config.extra
-            local increase = card.ability.increase or self.config.increase
+            local base_mult =
+                card.ability.extra.base_mult
+                or self.config.extra.base_mult
 
-            local current_mult =
-                extra + (boss_blinds * increase)
+            local mult_increase =
+                card.ability.extra.mult_increase
+                or self.config.extra.mult_increase
+
+            local total_mult =
+                base_mult
+                + (boss_blinds_defeated * mult_increase)
 
             return {
                 key = "j_yarm_jimbo",
                 vars = {
-                    extra,
-                    increase,
-                    current_mult
+                    base_mult,
+                    mult_increase,
+                    total_mult,
                 }
             }
         end,
 
         calculate = function(self, card, context)
+            if context.end_of_round
+                and context.game_over == false
+                and context.main_eval
+                and context.beat_boss
+                and not context.blueprint
+            then
+                return {
+                    message = localize('k_upgrade_ex'),
+                }
+            end
+
             if context.joker_main then
-                local boss_blinds =
+                local boss_blinds_defeated =
                     G.GAME and G.GAME.yarm_boss_blinds_defeated or 0
 
-                local extra = card.ability.extra or self.config.extra
-                local increase = card.ability.increase or self.config.increase
+                local base_mult =
+                    card.ability.extra.base_mult
+                    or self.config.extra.base_mult
 
-                local current_mult =
-                    extra + (boss_blinds * increase)
+                local mult_increase =
+                    card.ability.extra.mult_increase
+                    or self.config.extra.mult_increase
+
+                local total_mult =
+                    base_mult
+                    + (boss_blinds_defeated * mult_increase)
 
                 return {
-                    mult = current_mult
+                    mult = total_mult
                 }
             end
         end

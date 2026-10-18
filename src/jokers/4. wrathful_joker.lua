@@ -12,9 +12,9 @@ if YARM_CONFIG.jokers.wrathful_joker.rebalance then
 SMODS.Joker:take_ownership("j_wrathful_joker", {
     config = {
         extra = {
-        s_mult = 3,
+        base_mult = 3,
         suit = "Spades",
-        increase = 1
+        mult_increase = 1
         }
     },
 
@@ -22,8 +22,8 @@ SMODS.Joker:take_ownership("j_wrathful_joker", {
             return {
                 key = "j_yarm_wrathful_joker",
                 vars = {
-                    card.ability.extra.s_mult,
-                    card.ability.extra.increase,
+                    card.ability.extra.base_mult,
+                    card.ability.extra.mult_increase,
                     get_sinful_mult(card)
                 }
             }

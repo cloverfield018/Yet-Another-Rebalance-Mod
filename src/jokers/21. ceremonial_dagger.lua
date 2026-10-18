@@ -24,9 +24,9 @@ if config.rebalance or config.destroy_left then
     SMODS.Joker:take_ownership("ceremonial", {
         config = {
             extra = {
-                times_value = 2,
+                mult_multiplier = 2,
                 value_gain = 1,
-                mult = 0,
+                total_mult = 0,
             }
         },
 
@@ -46,22 +46,22 @@ if config.rebalance or config.destroy_left then
                 key = "j_yarm_ceremonial_dagger_01"
             end
 
-            local times_value = 2
+            local mult_multiplier = 2
 
             if config.rebalance then
                 if G.GAME.used_vouchers.v_liquidation then
-                    times_value = 3
+                    mult_multiplier = 3
                 elseif G.GAME.used_vouchers.v_clearance_sale then
-                    times_value = 2.5
+                    mult_multiplier = 2.5
                 end
             end
 
             return {
                 key = key,
                 vars = {
-                    times_value,
+                    mult_multiplier,
                     extra.value_gain,
-                    extra.mult,
+                    extra.total_mult,
                 }
             }
         end,
@@ -109,7 +109,7 @@ if config.rebalance or config.destroy_left then
                     G.GAME.joker_buffer = G.GAME.joker_buffer - 1
 
                     -- Permanent Mult gain.
-                    extra.mult = extra.mult + mult_gain
+                    extra.total_mult = extra.total_mult + mult_gain
 
                     -- Extra sell value is part of the rebalance only.
                     if config.rebalance then
@@ -158,7 +158,7 @@ if config.rebalance or config.destroy_left then
 
             if context.joker_main then
                 return {
-                    mult = card.ability.extra.mult
+                    mult = card.ability.extra.total_mult
                 }
             end
         end,

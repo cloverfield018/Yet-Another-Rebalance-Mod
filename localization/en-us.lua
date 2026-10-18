@@ -176,7 +176,63 @@ return {
                 }
             },
             j_yarm_marble_joker = {
+            },
+            j_yarm_loyalty_card = {
+                text = {
+                    "{X:red,C:white} X#1# {} Mult every",
+                    "{C:attention}#2#{} hands played",
+                    "Decreases by 1 each",
+                    "time a {C:attention}Food Joker{}",
+                    "is bought or eaten",
+                    "{C:inactive}(#3#){}"
+                },
+            },
+            j_yarm_8_ball = {
+                text = {
+                    "For each scored {C:attention}8{}",
+                    "{C:green}#1# in #2#{} chance to",
+                    "create a {C:tarot}Tarot{} card",
+                    "{C:green}#3# in #4#{} chance to create",
+                    "a {C:attention}Tag{} once per round"
+                }
+            },
+            j_yarm_misprint = {
+            },
+            j_yarm_raised_fist = {
+                text = {
+                    "Adds {C:attention}#1#X{} the rank",
+                    "of {C:attention}lowest{} ranked",
+                    "{C:attention}numbered{} card held",
+                    "in hand to {C:mult}Mult{}"
+                }
+            },
+            j_yarm_chaos_the_clown = {
+                text = {
+                    "{C:attention}#1#{} free {C:green}Reroll#2#{}",
+                    "per shop"
+                }
+            },
+            j_yarm_gros_michel = {
+                text = {
+                    "{C:mult}+#1#{} Mult",
+                    "{C:green}#2# in #3#{} chance this",
+                    "card is eaten",
+                    "at end of round"
+                },
+            },
+            j_yarm_abstract = {
+                text = {
+                    "{C:mult}+#1#{} Mult for each {C:attention}Joker{}",
+                    "and {C:attention}Voucher{} owned",
+                    "{C:inactive}(Currently {C:red}+#2#{C:inactive} Mult)"
+                }
             }
-        },
+        }
+    },
+    misc = {
+        dictionary = {
+            k_yarm_eaten_ex = "Eaten!",
+            k_yarm_plus_tag = "+1 Tag",
+        }
     }
 }

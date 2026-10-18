@@ -12,9 +12,9 @@ if YARM_CONFIG.jokers.gluttonous_joker.rebalance then
     SMODS.Joker:take_ownership("j_gluttenous_joker", {
         config = {
             extra = {
-            s_mult = 3,
+            base_mult = 3,
             suit = "Clubs",
-            increase = 1
+            mult_increase = 1
             }
         },
         
@@ -22,8 +22,8 @@ if YARM_CONFIG.jokers.gluttonous_joker.rebalance then
             return {
                 key = "j_yarm_gluttonous_joker",
                 vars = {
-                    card.ability.extra.s_mult,
-                    card.ability.extra.increase,
+                    card.ability.extra.base_mult,
+                    card.ability.extra.mult_increase,
                     get_sinful_mult(card)
                 }
             }

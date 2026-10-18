@@ -37,20 +37,18 @@ local function find_yarm_config_uibox(nodes)
 end
 
 
--- Save the settings and rebuild the config panel to reflect their changes.
-local function save_config()
+local YARM_CONFIG_ROWS_PER_PAGE = 5
+local yarm_config_page = 1
+local YARM_CONFIG_PANEL_WIDTH = 10.5
 
-    SMODS.save_mod_config(mod)
-
+-- Refresh the configuration panel.
+local function refresh_config_tab()
     local yarm_config_uibox =
         find_yarm_config_uibox(G.OVERLAY_MENU.definition.nodes)
 
-    if not yarm_config_uibox then
-        return
-    end
+    if not yarm_config_uibox then return end
 
     local menu_wrap = yarm_config_uibox.parent
-
     menu_wrap.config.object:remove()
 
     menu_wrap.config.object = UIBox({
@@ -62,7 +60,24 @@ local function save_config()
     })
 
     menu_wrap.UIBox:recalculate()
+end
 
+-- Save settings and refresh the configuration panel.
+local function save_config()
+    SMODS.save_mod_config(mod)
+    refresh_config_tab()
+end
+
+G.FUNCS.yarm_config_prev_page = function()
+    if yarm_config_page > 1 then
+        yarm_config_page = yarm_config_page - 1
+        refresh_config_tab()
+    end
+end
+
+G.FUNCS.yarm_config_next_page = function()
+    yarm_config_page = yarm_config_page + 1
+    refresh_config_tab()
 end
 
 
@@ -338,35 +353,18 @@ local function get_toggle_width(toggle)
 end
 
 
+
 function mod.config_tab()
-
     local toggles = {}
-
-    -- Recopilar los toggles registrados por cada Joker.
     for _, toggle in ipairs(YARM_CONFIG_TOGGLES or {}) do
         table.insert(toggles, toggle)
     end
 
-
-    local toggle_rows = {}
-
-    -- Restart: una sola fila propia.
-    table.insert(toggle_rows, {
-        n = G.UIT.R,
-        config = {
-            align = "cm",
-            padding = 0.01,
-        },
-        nodes = {
-            create_restart_container(),
-        },
-    })
-
+    -- Calculate toggle rows using the existing width estimation.
     local available_width = 9
     local rows = {}
     local row_widths = {}
 
-    -- Distribuir cada toggle en la primera fila donde entre.
     for _, toggle in ipairs(toggles) do
         local toggle_width = get_toggle_width(toggle)
         local placed = false
@@ -380,54 +378,170 @@ function mod.config_tab()
             end
         end
 
-        -- Si no entra en ninguna fila, crear una nueva.
         if not placed then
-            table.insert(rows, {
-                create_toggle_container(toggle)
-            })
-
+            table.insert(rows, { create_toggle_container(toggle) })
             table.insert(row_widths, toggle_width)
         end
     end
 
-    -- Añadir las filas calculadas después de la fila de reinicio.
-    for _, row in ipairs(rows) do
+    -- Page 1 has 5 toggle rows plus Restart.
+    -- Subsequent pages have 6 toggle rows each.
+    local first_page_toggle_rows = YARM_CONFIG_ROWS_PER_PAGE - 1
+    local remaining_rows = math.max(0, #rows - first_page_toggle_rows)
+    local page_count = 1 + math.ceil(
+        remaining_rows / YARM_CONFIG_ROWS_PER_PAGE
+    )
+
+    -- Keep the current page within valid bounds.
+    yarm_config_page = math.max(
+        1,
+        math.min(yarm_config_page, page_count)
+    )
+
+    local toggle_rows = {}
+
+    -- Restart occupies the first row on page 1.
+    if yarm_config_page == 1 then
         table.insert(toggle_rows, {
             n = G.UIT.R,
-            config = {
-                align = "cm",
-                padding = 0.01,
-            },
-            nodes = row,
+            config = { align = "cm", padding = 0.01 },
+            nodes = { create_restart_container() },
         })
     end
 
+    -- Determine which toggle rows belong to this page.
+    local first_row
+    local last_row
+
+    if yarm_config_page == 1 then
+        first_row = 1
+        last_row = math.min(#rows, first_page_toggle_rows)
+    else
+        first_row = first_page_toggle_rows
+            + 1
+            + (yarm_config_page - 2) * YARM_CONFIG_ROWS_PER_PAGE
+
+        last_row = math.min(
+            #rows,
+            first_row + YARM_CONFIG_ROWS_PER_PAGE - 1
+        )
+    end
+
+    for i = first_row, last_row do
+        table.insert(toggle_rows, {
+            n = G.UIT.R,
+            config = { align = "cm", padding = 0.01 },
+            nodes = rows[i],
+        })
+    end
+
+    -- Navigation row is separate from the six content rows.
+    local navigation_nodes = {}
+
+    if yarm_config_page > 1 then
+        table.insert(navigation_nodes, {
+            n = G.UIT.C,
+            config = {
+                align = "cm",
+                button = "yarm_config_prev_page",
+                colour = G.C.BLUE,
+                minw = 1.2,
+                minh = 0.5,
+                padding = 0.08,
+                r = 0.1,
+                hover = true,
+            },
+            nodes = {
+                {
+                    n = G.UIT.T,
+                    config = {
+                        text = "Previous",
+                        scale = 0.35,
+                        colour = G.C.WHITE,
+                    },
+                },
+            },
+        })
+    end
+
+    table.insert(navigation_nodes, {
+        n = G.UIT.C,
+        config = {
+            align = "cm",
+            padding = 0.15,
+        },
+        nodes = {
+            {
+                n = G.UIT.T,
+                config = {
+                    text = "Page " .. yarm_config_page
+                        .. " / " .. page_count,
+                    scale = 0.4,
+                    colour = G.C.WHITE,
+                },
+            },
+        },
+    })
+
+    if yarm_config_page < page_count then
+        table.insert(navigation_nodes, {
+            n = G.UIT.C,
+            config = {
+                align = "cm",
+                button = "yarm_config_next_page",
+                colour = G.C.BLUE,
+                minw = 1.2,
+                minh = 0.5,
+                padding = 0.08,
+                r = 0.1,
+                hover = true,
+            },
+            nodes = {
+                {
+                    n = G.UIT.T,
+                    config = {
+                        text = "Next",
+                        scale = 0.35,
+                        colour = G.C.WHITE,
+                    },
+                },
+            },
+        })
+    end
+
+    table.insert(toggle_rows, {
+        n = G.UIT.R,
+        config = { align = "cm", padding = 0.08 },
+        nodes = navigation_nodes,
+    })
+
+    
     return {
         n = G.UIT.ROOT,
-
         config = {
             id = "yarm_config_tab",
             r = 0.01,
-            minw = 7,
+            minw = YARM_CONFIG_PANEL_WIDTH,
+            maxw = YARM_CONFIG_PANEL_WIDTH,
             align = "tm",
             padding = 0.2,
             colour = G.C.BLACK,
             outline = 1,
         },
-
         nodes = {
             {
                 n = G.UIT.C,
                 config = {
                     align = "cm",
                     padding = 0.2,
+                    minw = YARM_CONFIG_PANEL_WIDTH - 0.4,
+                    maxw = YARM_CONFIG_PANEL_WIDTH - 0.4,
                 },
                 nodes = toggle_rows,
             },
         },
     }
 end
-
 
 
 -- Localization
@@ -438,6 +552,7 @@ dofile(path .. "localization/en-us.lua")
 -- Functions
 
 dofile(path .. "functions/sinful.lua")
+dofile(path .. "functions/food.lua")
 
 
 -- Jokers
@@ -462,6 +577,12 @@ dofile(path .. "src/jokers/21. ceremonial_dagger.lua")
 dofile(path .. "src/jokers/22. banner.lua")
 dofile(path .. "src/jokers/23. mystic_summit.lua")
 dofile(path .. "src/jokers/24. marble_joker.lua")
+dofile(path .. "src/jokers/25. loyalty_card.lua")
+dofile(path .. "src/jokers/26. 8_ball.lua")
+dofile(path .. "src/jokers/27. misprint.lua")
+dofile(path .. "src/jokers/29. raised_fist.lua")
+dofile(path .. "src/jokers/30. chaos_the_clown.lua")
+dofile(path .. "src/jokers/38. gros_michel.lua")
 
 
 -- Other content
@@ -471,4 +592,4 @@ dofile(path .. "src/enhancements.lua")
 
 
 -- Tests
--- assert(SMODS.load_file("tests.lua"))()
+--assert(SMODS.load_file("tests.lua"))()

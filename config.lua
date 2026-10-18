@@ -64,5 +64,23 @@ return {
         marble = {
             rebalance = true,
         },
+        loyalty_card = {
+            rebalance = true,
+        },
+        eight_ball = {
+            rebalance = true,
+        },
+        misprint = {
+            rebalance = true,
+        },
+        raised_fist = {
+            rebalance = true,
+        },
+        chaos_the_clown = {
+            rebalance = true,
+        },
+        gros_michel = {
+            rebalance = true,
+        }
     },
 }
