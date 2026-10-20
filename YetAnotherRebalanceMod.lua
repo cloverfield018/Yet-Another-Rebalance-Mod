@@ -553,6 +553,7 @@ dofile(path .. "localization/en-us.lua")
 
 dofile(path .. "functions/sinful.lua")
 dofile(path .. "functions/food.lua")
+dofile(path .. "functions/rank_groups.lua")
 
 
 -- Jokers

@@ -7,6 +7,14 @@ table.insert(YARM_CONFIG_TOGGLES, {
     ref_value = "rebalance",
 })
 
+-- Tracks, per 8 Ball card, whether it already created a Tag this round.
+-- Kept outside `ability` so cards created with copy_card do not inherit
+-- the limit. Blueprint/Brainstorm still resolve to the same real card,
+-- so a single activation can never produce two Tags.
+local tag_created_this_round = setmetatable({}, {
+    __mode = "k"
+})
+
 -- 8 Ball
 if YARM_CONFIG.jokers.eight_ball.rebalance then
     SMODS.Joker:take_ownership("8_ball", {
@@ -19,7 +27,7 @@ if YARM_CONFIG.jokers.eight_ball.rebalance then
 
         loc_vars = function(self, info_queue, card)
             local tarot_num, tarot_den = SMODS.get_probability_vars(
-                card, 1, card.ability.extra.odds, "yarm_8_ball_tarot"
+                card, 1, card.ability.extra.odds, "8ball"
             )
             local tag_num, tag_den = SMODS.get_probability_vars(
                 card, 1, card.ability.extra.tag_odds, "yarm_8_ball_tag"
@@ -37,11 +45,9 @@ if YARM_CONFIG.jokers.eight_ball.rebalance then
         end,
 
         calculate = function(self, card, context)
-            -- Reset the Tag limit at the end of each non-losing round.
-            if context.end_of_round
-                and context.game_over == false
-                and not context.blueprint then
-                card.ability.tag_created_this_round = nil
+            -- Reset the Tag limit at the start of each round.
+            if context.setting_blind and not context.blueprint then
+                tag_created_this_round[card] = nil
             end
 
             if context.individual
@@ -52,7 +58,7 @@ if YARM_CONFIG.jokers.eight_ball.rebalance then
                 local tarot_effect = nil
 
                 -- Roll for a Tag once per round per 8 Ball.
-                if not card.ability.tag_created_this_round
+                if not tag_created_this_round[card]
                     and SMODS.pseudorandom_probability(
                         card,
                         "yarm_8_ball_tag",
@@ -63,7 +69,7 @@ if YARM_CONFIG.jokers.eight_ball.rebalance then
                     local tag_key = get_next_tag_key()
 
                     if tag_key then
-                        card.ability.tag_created_this_round = true
+                        tag_created_this_round[card] = true
 
                         tag_effect = {
                             message = localize("k_yarm_plus_tag"),
@@ -85,11 +91,12 @@ if YARM_CONFIG.jokers.eight_ball.rebalance then
                 end
 
                 -- Roll for a Tarot only if consumable space is available.
+                -- Uses the vanilla seed so the roll matches vanilla 8 Ball.
                 if #G.consumeables.cards + G.GAME.consumeable_buffer
                     < G.consumeables.config.card_limit
                     and SMODS.pseudorandom_probability(
                         card,
-                        "yarm_8_ball_tarot",
+                        "8ball",
                         1,
                         card.ability.extra.odds
                     ) then
@@ -131,6 +138,8 @@ if YARM_CONFIG.jokers.eight_ball.rebalance then
                 if tarot_effect then
                     return tarot_effect
                 end
+
+                return nil, true
             end
         end,
     })

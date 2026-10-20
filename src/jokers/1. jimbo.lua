@@ -12,7 +12,7 @@ table.insert(YARM_CONFIG_TOGGLES, {
 local blind_defeat_ref = Blind.defeat
 
 function Blind:defeat(silent)
-    if self.boss and G.GAME then
+    if YARM_CONFIG.jokers.jimbo.rebalance and self.boss and G.GAME then
         G.GAME.yarm_boss_blinds_defeated =
             (G.GAME.yarm_boss_blinds_defeated or 0) + 1
     end

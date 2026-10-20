@@ -7,7 +7,7 @@
     "badge_color": "#26a4de",
     "display_name": "YARM",
     "main_file": "YetAnotherRebalanceMod.lua",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": 0,
     "dependencies": ""
 }

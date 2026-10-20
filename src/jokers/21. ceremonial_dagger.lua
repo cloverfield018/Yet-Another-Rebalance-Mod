@@ -31,7 +31,8 @@ if config.rebalance or config.destroy_left then
         },
 
         loc_vars = function(self, info_queue, card)
-            local extra = card.ability.extra
+            -- Tolerate cards saved by older versions that lack ability.extra.
+            local extra = card.ability.extra or {}
             local key
 
             -- Select localization based on the active toggles.
@@ -60,8 +61,8 @@ if config.rebalance or config.destroy_left then
                 key = key,
                 vars = {
                     mult_multiplier,
-                    extra.value_gain,
-                    extra.total_mult,
+                    extra.value_gain or 1,
+                    extra.total_mult or card.ability.mult or 0,
                 }
             }
         end,
@@ -89,7 +90,18 @@ if config.rebalance or config.destroy_left then
                     and not SMODS.is_eternal(sliced_card, card)
                     and not sliced_card.getting_sliced then
 
+                    -- Initialize ability.extra once for cards saved by older
+                    -- versions, preserving their accumulated mult if present.
                     local extra = card.ability.extra
+                    if not extra then
+                        extra = {
+                            mult_multiplier = 2,
+                            value_gain = 1,
+                            total_mult = card.ability.mult or 0,
+                        }
+                        card.ability.extra = extra
+                    end
+
                     local multiplier = 2
 
                     -- Voucher multipliers only apply with rebalance enabled.
@@ -158,7 +170,7 @@ if config.rebalance or config.destroy_left then
 
             if context.joker_main then
                 return {
-                    mult = card.ability.extra.total_mult
+                    mult = (card.ability.extra and card.ability.extra.total_mult) or 0
                 }
             end
         end,

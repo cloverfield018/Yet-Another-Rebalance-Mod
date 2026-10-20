@@ -64,67 +64,35 @@ if ff_config.rebalance then
         return next(SMODS.find_card("j_four_fingers"))
     end
 
-    local function is_four_card_flush(hand)
-        local suits = {
-            "Spades",
-            "Hearts",
-            "Clubs",
-            "Diamonds"
-        }
-
-        for _, suit in ipairs(suits) do
-            local count = 0
+    local function get_special_flush_cards(hand)
+        for _, suit in ipairs(SMODS.Suit.obj_buffer) do
+            local suited_cards = {}
 
             for _, card in ipairs(hand) do
                 if card:is_suit(suit, nil, true) then
-                    count = count + 1
+                    suited_cards[#suited_cards + 1] = card
                 end
             end
 
-            if count >= 4 then
-                return true
+            if #suited_cards >= 4 then
+                return suited_cards
             end
         end
-
-        return false
-    end
-
-
-    -- Straight
-    local smods_four_fingers_ref = SMODS.four_fingers
-
-    function SMODS.four_fingers(hand_type, ...)
-        if has_four_fingers() and hand_type == "straight" then
-            return 4
-        end
-
-        return smods_four_fingers_ref(hand_type, ...)
     end
 
 
     -- Flush
     function get_flush(hand)
         local ret = {}
-        local ff_config = YARM_CONFIG.jokers.four_fingers
 
         local hand_size = #hand
-
-        -- Four Fingers rebalance must be enabled.
-        if not ff_config.rebalance then
-            return ret
-        end
 
         local allow_four_card_flush =
             not ff_config.remove_flush and has_four_fingers()
 
         -- Preserve the normal 5-card Flush.
         if hand_size == 5 then
-            local suits = {
-                "Spades",
-                "Hearts",
-                "Clubs",
-                "Diamonds"
-            }
+            local suits = SMODS.Suit.obj_buffer
 
             for _, suit in ipairs(suits) do
                 local t = {}
@@ -162,12 +130,7 @@ if ff_config.rebalance then
 
         -- Four Fingers: exactly 4 cards of the same suit.
         if hand_size == 4 and allow_four_card_flush then
-            local suits = {
-                "Spades",
-                "Hearts",
-                "Clubs",
-                "Diamonds"
-            }
+            local suits = SMODS.Suit.obj_buffer
 
             for _, suit in ipairs(suits) do
                 local t = {}
@@ -193,43 +156,15 @@ if ff_config.rebalance then
         evaluate = function(parts, hand)
             if not next(parts._straight) then return {} end
 
-            -- Preserve the normal 5-card Straight Flush.
-            if next(parts._flush) then
-                return { SMODS.merge_lists(parts._straight, parts._flush) }
+            local flush_cards = parts._flush[1]
+
+            if not flush_cards and has_four_fingers() then
+                flush_cards = get_special_flush_cards(hand)
             end
 
-            -- Four Fingers: find 4 consecutive cards of the same suit
-            -- within the detected Straight, even if it contains 5 cards.
-            if has_four_fingers() then
-                local straight_cards = parts._straight[1]
+            if not flush_cards then return {} end
 
-                if straight_cards and #straight_cards >= 4 then
-                    local suits = {
-                        "Spades",
-                        "Hearts",
-                        "Clubs",
-                        "Diamonds"
-                    }
-
-                    for _, suit in ipairs(suits) do
-                        local suited_cards = {}
-
-                        for _, card in ipairs(straight_cards) do
-                            if card:is_suit(suit, nil, true) then
-                                suited_cards[#suited_cards + 1] = card
-                            end
-                        end
-
-                        if #suited_cards >= 4 then
-                            -- Return the full detected Straight so off-suit cards that complete it
-                            -- still score, rather than returning only the suited subset.
-                            return { straight_cards }
-                        end
-                    end
-                end
-            end
-
-            return {}
+            return { SMODS.merge_lists(parts._straight, { flush_cards }) }
         end
     }, true)
 
@@ -237,16 +172,34 @@ if ff_config.rebalance then
     -- Helpers for Full House rank restriction.
     -- Group ranks as Odd (including Ace), Even, or Face for the optional
     -- four-card Full House and Flush House restriction.
-    local function get_rank_group(card)
-        local rank = card:get_id()
+    local function has_non_debuffed_pareidolia()
+        if type(SMODS) ~= "table"
+            or type(SMODS.find_card) ~= "function" then
+            return false
+        end
 
-        if card:is_face() then
+        local pareidolias = SMODS.find_card("j_pareidolia")
+        return type(pareidolias) == "table" and next(pareidolias) ~= nil
+    end
+
+    local function get_rank_group(card)
+        if type(card) ~= "table" then
+            return nil
+        end
+
+        if YARM.is_intrinsic_face(card) then
             return "face"
-        elseif rank == 2 or rank == 4 or rank == 6
-            or rank == 8 or rank == 10 then
+        end
+
+        if not card.debuff and has_non_debuffed_pareidolia() then
+            return "face"
+        end
+
+        if YARM.is_even(card) then
             return "even"
-        elseif rank == 3 or rank == 5 or rank == 7 
-            or rank == 9 or rank == 14 then
+        end
+
+        if YARM.is_odd(card) then
             return "odd"
         end
 
@@ -309,57 +262,41 @@ if ff_config.rebalance then
     -- Flush House
     SMODS.PokerHand:take_ownership("Flush House", {
         evaluate = function(parts, hand)
-            -- Normal Flush House: Three of a Kind + Pair + 5-card Flush.
-            if #parts._3 >= 1 and next(parts._flush) then
-                local flush_cards = parts._flush[1]
+            if #parts._2 < 2 then return {} end
 
-                if flush_cards and #flush_cards == 5 then
-                    return { SMODS.merge_lists(parts._all_pairs, parts._flush) }
+            local full_house_cards
+
+            -- Normal Flush House: Three of a Kind + Pair.
+            if #parts._3 >= 1 then
+                full_house_cards = parts._all_pairs[1]
+            else
+                -- Four Fingers: two pairs can count as a Full House.
+                if not has_four_fingers() then return {} end
+
+                local pair_cards = parts._all_pairs[1]
+
+                if not pair_cards or #pair_cards ~= 4 then
+                    return {}
                 end
+
+                if not has_matching_rank_group(pair_cards) then
+                    return {}
+                end
+
+                full_house_cards = pair_cards
             end
 
-            -- A special Four Fingers Flush House uses four suited cards forming
-            -- two pairs; a fifth card may be present in the selected hand.
-            if not has_four_fingers() then return {} end
+            local flush_cards = parts._flush[1]
 
-            local pair_cards = parts._all_pairs[1]
+            if not flush_cards and has_four_fingers() then
+                flush_cards = get_special_flush_cards(hand)
+            end
 
-            if not pair_cards or #pair_cards < 4 then
+            if not full_house_cards or not flush_cards then
                 return {}
             end
 
-            -- Find four cards forming two pairs, all of the same suit.
-            local suits = {
-                "Spades",
-                "Hearts",
-                "Clubs",
-                "Diamonds"
-            }
-
-            for _, suit in ipairs(suits) do
-                local suited_cards = {}
-
-                for _, card in ipairs(pair_cards) do
-                    if card:is_suit(suit, nil, true) then
-                        suited_cards[#suited_cards + 1] = card
-                    end
-                end
-
-                if #suited_cards >= 4 then
-                    local four_cards = {
-                        suited_cards[1],
-                        suited_cards[2],
-                        suited_cards[3],
-                        suited_cards[4]
-                    }
-
-                    if has_matching_rank_group(four_cards) then
-                        return { four_cards }
-                    end
-                end
-            end
-
-            return {}
+            return { SMODS.merge_lists({ full_house_cards }, { flush_cards }) }
         end
     }, true)
 end

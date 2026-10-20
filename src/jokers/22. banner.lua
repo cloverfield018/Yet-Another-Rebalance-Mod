@@ -11,11 +11,11 @@ table.insert(YARM_CONFIG_TOGGLES, {
 if YARM_CONFIG.jokers.banner.rebalance then
     SMODS.Joker:take_ownership("banner", {
         config = {
-            chips = 40,
+            extra = 40,
         },
 
         loc_vars = function(self, info_queue, card)
-            local chips = card.ability.chips or self.config.chips
+            local chips = card.ability.extra or self.config.extra
             local discards = G.GAME.current_round.discards_left or 0
             local total_chips = chips * discards
 
@@ -26,6 +26,20 @@ if YARM_CONFIG.jokers.banner.rebalance then
                     total_chips,
                 }
             }
+        end,
+
+        calculate = function(self, card, context)
+            if context.joker_main then
+                local chips = card.ability.extra or self.config.extra
+                local discards = G.GAME.current_round.discards_left or 0
+                local total_chips = chips * discards
+
+                if total_chips > 0 then
+                    return {
+                        chips = total_chips,
+                    }
+                end
+            end
         end,
     })
 end

@@ -26,42 +26,38 @@ if YARM_CONFIG.jokers.raised_fist.rebalance then
         end,
 
         calculate = function(self, card, context)
-            -- Prevent the vanilla Raised Fist special case from interfering.
-            if card.ability.name == "Raised Fist" then
-                card.ability.name = "YARM Raised Fist"
+            if not (context.individual and context.cardarea == G.hand) then return end
+
+            -- Carta que elegiría Raised Fist vanilla (para suprimir su rama).
+            local vanilla_card, vanilla_id = nil, 15
+            for _, held_card in ipairs(G.hand.cards) do
+                local id = held_card.base.id
+                if id and vanilla_id >= id and held_card.ability.effect ~= "Stone Card" then
+                    vanilla_id = id
+                    vanilla_card = held_card
+                end
             end
 
-            if context.individual
-                and context.cardarea == G.hand
-                and not context.end_of_round then
-
-                local lowest_card = nil
-                local lowest_id = 11
-
-                for _, held_card in ipairs(G.hand.cards) do
-                    local id = held_card.base.id
-
-                    if id >= 2
-                        and id <= 10
-                        and id < lowest_id
-                        and not SMODS.has_no_rank(held_card) then
-                        lowest_id = id
-                        lowest_card = held_card
-                    end
+            -- Carta elegible de YARM (menor rango 2-10).
+            local yarm_card, yarm_id = nil, 11
+            for _, held_card in ipairs(G.hand.cards) do
+                local id = held_card.base.id
+                if id and id >= 2 and id <= 10 and id < yarm_id and not SMODS.has_no_rank(held_card) then
+                    yarm_id = id
+                    yarm_card = held_card
                 end
+            end
 
-                if lowest_card == context.other_card then
-                    if context.other_card.debuff then
-                        return {
-                            message = localize("k_debuffed"),
-                            colour = G.C.RED,
-                        }
-                    end
-
-                    return {
-                        mult = card.ability.extra.mult * lowest_card.base.nominal,
-                    }
+            if not context.end_of_round and context.other_card == yarm_card then
+                if context.other_card.debuff then
+                    return { message = localize("k_debuffed"), colour = G.C.RED }
                 end
+                return { mult = card.ability.extra.mult * yarm_card.base.nominal }
+            end
+
+            -- Vanilla dispararía aquí pero YARM no concede nada: preempta la rama vanilla.
+            if context.other_card == vanilla_card then
+                return { no_retrigger = true }
             end
         end,
     })
